@@ -1229,10 +1229,13 @@ static int syn_config_update(struct synaptics_ts_data *ts, int attr)
 	uint32_t crc_checksum;
 	int ret;
 
-	crc_checksum =
-		syn_crc((uint16_t *)ts->config, SYN_CONFIG_SIZE / 2 - 2);
-	memcpy(&ts->config[SYN_CONFIG_SIZE - 4], &crc_checksum, 4);
-	printk(KERN_INFO "[TP] CRC = %X\n" , syn_crc((uint16_t *)ts->config, SYN_CONFIG_SIZE / 2 - 2));
+	if (ts->config != NULL)
+	{
+		crc_checksum =
+			syn_crc((uint16_t *)ts->config, SYN_CONFIG_SIZE / 2 - 2);
+		memcpy(&ts->config[SYN_CONFIG_SIZE - 4], &crc_checksum, 4);
+		printk(KERN_INFO "[TP] CRC = %X\n" , syn_crc((uint16_t *)ts->config, SYN_CONFIG_SIZE / 2 - 2));
+	}
 
 	if (ts->tw_pin_mask == 0) {
 		ret = enable_flash_programming(ts, attr);
@@ -2936,8 +2939,8 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 					if (ts->layout[1] < finger_data[i][0])
 						finger_data[i][0] = ts->layout[1];
 					if(ts->width_factor && ts->height_factor){
-						pr_debug(
-							"[TP] Screen:F[%02d]:Up, X=%d, Y=%d, W=%d, Z=%d, IM:%d, CIDIM:%d, Freq:%d, NS:%d\n",
+						printk(KERN_INFO
+							"[TP] Screen:F[%02d]:Up, X=%d, Y=%d, W=%d, Z=%d\n",
 							i+1, (x_pos[i]*ts->width_factor)>>SHIFT_BITS,
 							(y_pos[i]*ts->height_factor)>>SHIFT_BITS,
 							finger_data[i][2], finger_data[i][3]);
@@ -3187,8 +3190,8 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 
 						if ((finger_press_changed & BIT(i)) && ts->debug_log_level & BIT(3)) {
 							if(ts->width_factor && ts->height_factor){
-								pr_debug(
-									"[TP] Screen:F[%02d]:Down, X=%d, Y=%d, W=%d, Z=%d, IM:%d, CIDIM:%d, Freq:%d, NS:%d\n",
+								printk(KERN_INFO
+									"[TP] Screen:F[%02d]:Down, X=%d, Y=%d, W=%d, Z=%d\n",
 									i+1, (finger_data[i][0]*ts->width_factor)>>SHIFT_BITS,
 									(finger_data[i][1]*ts->height_factor)>>SHIFT_BITS,
 									finger_data[i][2], finger_data[i][3]);
